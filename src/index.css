@@ -1,16 +1,24 @@
+@import "tailwindcss";
+
 :root {
-  font-family: "Times New Roman", Times, serif;
+  --font-sans: "Roboto", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+  font-family: var(--font-mono);
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #213547;
-  background-color: #eaf4ff; /* low saturation blueish hue */
+  color: #111827; /* gray-900 */
+  background-color: #f8fafc; /* slate-50 */
 
   font-synthesize: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
 }
 
 body {
