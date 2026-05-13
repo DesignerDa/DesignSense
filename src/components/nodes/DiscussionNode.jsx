@@ -10,7 +10,7 @@ export default function DiscussionNode({ data }) {
 
   const summaryText = `DESIGN REFLECTION SUMMARY
 -------------------------
-PHASE: ${data.brief.phase}
+PHASE: ${data.brief.selectedPhase}
 CHOSEN CONTEXT: ${outcome.contextLabel}
 
 ORIGINAL INPUT:

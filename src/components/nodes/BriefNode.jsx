@@ -5,11 +5,11 @@ import { Sparkles } from 'lucide-react';
 
 export default function BriefNode({ data }) {
   const [brief, setBrief] = useState({
-    prompt: '',
-    phase: 'Empathise'
+    userProblemStatement: '',
+    selectedPhase: 'Empathise'
   });
 
-  const isFormValid = brief.prompt.trim().length > 10;
+  const isFormValid = brief.userProblemStatement.trim().length > 10;
 
   const handleChange = (field, value) => {
     setBrief(prev => ({ ...prev, [field]: value }));
@@ -39,20 +39,20 @@ export default function BriefNode({ data }) {
         {data.isLocked ? (
           <div className="flex flex-col gap-3 font-mono text-sm text-gray-700">
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-gray-600 italic">
-              "{brief.prompt}"
+              "{brief.userProblemStatement}"
             </div>
             <div className="mt-2 bg-indigo-50 p-2 rounded-md border border-indigo-100 flex justify-between items-center">
               <strong className="text-indigo-900 font-sans block mb-1 m-0">Target Phase:</strong> 
-              <span className="text-indigo-700 font-bold bg-white px-2 py-0.5 rounded shadow-sm">{brief.phase}</span>
+              <span className="text-indigo-700 font-bold bg-white px-2 py-0.5 rounded shadow-sm">{brief.selectedPhase}</span>
             </div>
           </div>
         ) : (
           <>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-700 font-sans">Describe your design problem</label>
+              <label className="text-sm font-semibold text-gray-700 font-sans">Describe your design problem or situation...</label>
               <textarea 
-                value={brief.prompt}
-                onChange={(e) => handleChange('prompt', e.target.value)}
+                value={brief.userProblemStatement}
+                onChange={(e) => handleChange('userProblemStatement', e.target.value)}
                 placeholder="E.g., Elderly patients living independently often forget to take medication properly at home during stressful daily routines..."
                 rows={5}
                 className="w-full text-[15px] leading-relaxed font-sans p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none bg-gray-50/50 placeholder:text-gray-400"
@@ -65,8 +65,8 @@ export default function BriefNode({ data }) {
                 {['Empathise', 'Analyse', 'Ideate'].map(p => (
                   <button
                     key={p}
-                    onClick={() => handleChange('phase', p)}
-                    className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${brief.phase === p ? 'bg-white shadow-sm text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}
+                    onClick={() => handleChange('selectedPhase', p)}
+                    className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${brief.selectedPhase === p ? 'bg-white shadow-sm text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}
                   >
                     {p}
                   </button>

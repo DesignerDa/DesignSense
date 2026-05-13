@@ -567,7 +567,7 @@ export const baseMethods = [
 ];
 
 export const generateScenarios = (brief) => {
-  const prompt = brief.prompt ? brief.prompt.toLowerCase() : '';
+  const prompt = brief.userProblemStatement ? brief.userProblemStatement.toLowerCase() : '';
   
   // Internal matching logic - defaults to medication adherence unless rehab keywords are detected
   let selectedProblem = "Improving medication adherence for elderly patients living independently";
@@ -579,7 +579,7 @@ export const generateScenarios = (brief) => {
   }
 
   const matchedScenarios = baseScenarios.filter(
-    s => s.phase === brief.phase && s.problemStatement === selectedProblem
+    s => s.phase === brief.selectedPhase && s.problemStatement === selectedProblem
   );
   
   // Inject the contextLabel so the UI can display it
@@ -601,7 +601,7 @@ export const getOutcome = (brief, scenarioId, methodId) => {
   const scenario = baseScenarios.find(s => s.id === scenarioId);
   const method = baseMethods.find(m => m.id === methodId);
   
-  const prompt = brief.prompt ? brief.prompt.toLowerCase() : '';
+  const prompt = brief.userProblemStatement ? brief.userProblemStatement.toLowerCase() : '';
   let contextLabel = "Medication Adherence";
   if (prompt.includes('rehab') || prompt.includes('knee') || prompt.includes('physical therapy') || prompt.includes('surgery')) {
     contextLabel = "Tele-Rehabilitation";
@@ -609,7 +609,7 @@ export const getOutcome = (brief, scenarioId, methodId) => {
 
   return {
     contextLabel,
-    originalInput: brief.prompt,
+    originalInput: brief.userProblemStatement,
     scenarioTitle: scenario?.title,
     scenarioDescription: scenario?.descriptionTemplate,
     methodTitle: method?.title,

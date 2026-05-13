@@ -105,7 +105,7 @@ export default function App() {
           data: { 
             scenario: sc, 
             isDimmed: false,
-            onSelect: () => handleSelectScenario(sc.id, brief.phase, startY + (idx * spacingY))
+            onSelect: () => handleSelectScenario(sc.id, brief.selectedPhase, startY + (idx * spacingY))
           }
         }));
 
@@ -319,11 +319,11 @@ export default function App() {
       </ReactFlow>
 
       {/* Persistent Bottom Bar */}
-      {briefState && briefState.prompt && (
+      {briefState && briefState.userProblemStatement && (
         <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 flex flex-col items-center justify-center z-10 transition-all duration-500 transform translate-y-0">
           <div className="max-w-4xl w-full text-center">
             <span className="text-xs font-mono font-bold text-indigo-500 uppercase tracking-widest block mb-1">Your Input</span>
-            <p className="text-sm font-sans text-slate-700 italic m-0">"{briefState.prompt}"</p>
+            <p className="text-sm font-sans text-slate-700 italic m-0">"{briefState.userProblemStatement}"</p>
           </div>
         </div>
       )}
