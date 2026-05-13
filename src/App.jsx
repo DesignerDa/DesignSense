@@ -14,7 +14,8 @@ import '@xyflow/react/dist/style.css';
 import BriefNode from './components/nodes/BriefNode';
 import ScenarioNode from './components/nodes/ScenarioNode';
 import MethodNode from './components/nodes/MethodNode';
-import OutcomeNode from './components/nodes/OutcomeNode';
+import SummaryNode from './components/nodes/SummaryNode';
+import DiscussionNode from './components/nodes/DiscussionNode';
 import LoadingNode from './components/nodes/LoadingNode';
 import { generateScenarios, generateMethods, getOutcome } from './data/mockData';
 
@@ -22,7 +23,8 @@ const nodeTypes = {
   brief: BriefNode,
   scenario: ScenarioNode,
   method: MethodNode,
-  outcome: OutcomeNode,
+  summary: SummaryNode,
+  discussion: DiscussionNode,
   loading: LoadingNode
 };
 
@@ -38,6 +40,7 @@ const defaultEdgeOptions = {
 
 export default function App() {
   const [briefState, setBriefState] = useState(null);
+  const briefRef = useRef(null);
   
   const initialNodes = [
     {
@@ -53,6 +56,7 @@ export default function App() {
 
   const handleGenerateScenarios = useCallback((brief) => {
     setBriefState(brief);
+    briefRef.current = brief;
     
     // Lock the brief node and show loading state
     setNodes((nds) => nds.map(n => {
@@ -64,7 +68,7 @@ export default function App() {
     const loadingId = 'loading-scenarios';
     setNodes((nds) => [
       ...nds, 
-      { id: loadingId, type: 'loading', position: { x: 450, y: 150 }, data: { label: 'Generating Scenarios...' } }
+      { id: loadingId, type: 'loading', position: { x: 500, y: 150 }, data: { label: 'Analyzing context...' } }
     ]);
     
     setEdges((eds) => [
@@ -72,7 +76,15 @@ export default function App() {
       { id: 'e-brief-loading', source: 'brief', target: loadingId, ...defaultEdgeOptions }
     ]);
 
-    // Simulate AI Delay
+    // Simulate multi-stage AI Delay
+    setTimeout(() => {
+      setNodes(nds => nds.map(n => n.id === loadingId ? { ...n, data: { label: 'Identifying stakeholders...' } } : n));
+    }, 1000);
+
+    setTimeout(() => {
+      setNodes(nds => nds.map(n => n.id === loadingId ? { ...n, data: { label: 'Generating design pathways...' } } : n));
+    }, 2000);
+
     setTimeout(() => {
       const scenarios = generateScenarios(brief);
       
@@ -83,13 +95,13 @@ export default function App() {
         );
         
         // Add new scenario nodes spread vertically
-        const startY = -150;
-        const spacingY = 220;
+        const startY = -((scenarios.length * 240) / 2) + 200;
+        const spacingY = 240;
         
         const scenarioNodes = scenarios.map((sc, idx) => ({
           id: `scenario-${sc.id}`,
           type: 'scenario',
-          position: { x: 500, y: startY + (idx * spacingY) },
+          position: { x: 550, y: startY + (idx * spacingY) },
           data: { 
             scenario: sc, 
             isDimmed: false,
@@ -111,7 +123,7 @@ export default function App() {
         return [...filtered, ...newEdges];
       });
 
-    }, 1500);
+    }, 3000);
   }, []);
 
   const handleSelectScenario = useCallback((scenarioId, phase, yPos) => {
@@ -132,7 +144,7 @@ export default function App() {
     const loadingId = 'loading-methods';
     setNodes((nds) => [
       ...nds.filter(n => n.type !== 'method' && n.type !== 'outcome' && n.id !== loadingId), 
-      { id: loadingId, type: 'loading', position: { x: 880, y: yPos + 20 }, data: { label: 'Analyzing Methods...' } }
+      { id: loadingId, type: 'loading', position: { x: 930, y: yPos + 20 }, data: { label: 'Analyzing Methods...' } }
     ]);
 
     setEdges((eds) => [
@@ -146,19 +158,23 @@ export default function App() {
       setNodes((nds) => {
         const filtered = nds.filter(n => n.id !== loadingId);
         
-        const startY = yPos - ((methods.length * 200) / 2) + 100;
-        const spacingY = 200;
+        const rows = Math.ceil(methods.length / 2);
+        const startY = yPos - ((rows * 180) / 2) + 90;
         
-        const methodNodes = methods.map((m, idx) => ({
-          id: `method-${m.id}`,
-          type: 'method',
-          position: { x: 950, y: startY + (idx * spacingY) },
-          data: { 
-            method: m,
-            isDimmed: false,
-            onSelect: () => handleSelectMethod(m.id, scenarioId, startY + (idx * spacingY))
-          }
-        }));
+        const methodNodes = methods.map((m, idx) => {
+          const col = idx % 2;
+          const row = Math.floor(idx / 2);
+          return {
+            id: `method-${m.id}`,
+            type: 'method',
+            position: { x: 1000 + (col * 320), y: startY + (row * 180) },
+            data: { 
+              method: m,
+              isDimmed: false,
+              onSelect: () => handleSelectMethod(m.id, scenarioId, startY + (row * 180))
+            }
+          };
+        });
 
         return [...filtered, ...methodNodes];
       });
@@ -193,29 +209,42 @@ export default function App() {
 
     const loadingId = 'loading-outcome';
     setNodes((nds) => [
-      ...nds.filter(n => n.type !== 'outcome' && n.id !== loadingId), 
-      { id: loadingId, type: 'loading', position: { x: 1280, y: yPos + 20 }, data: { label: 'Generating Reflection...' } }
+      ...nds.filter(n => n.type !== 'summary' && n.type !== 'discussion' && n.id !== loadingId), 
+      { id: loadingId, type: 'loading', position: { x: 1350, y: yPos + 20 }, data: { label: 'Constructing design reasoning...' } }
     ]);
 
     setEdges((eds) => [
-      ...eds.filter(e => !e.target.startsWith('outcome') && e.id !== 'e-method-loading'),
+      ...eds.filter(e => !e.target.startsWith('summary') && !e.target.startsWith('discussion') && e.id !== 'e-method-loading'),
       { id: 'e-method-loading', source: `method-${methodId}`, target: loadingId, ...defaultEdgeOptions }
     ]);
+
+    // Simulate multi-stage AI Delay
+    setTimeout(() => {
+      setNodes(nds => nds.map(n => n.id === loadingId ? { ...n, data: { label: 'Generating reflective prompts...' } } : n));
+    }, 1000);
+
+    setTimeout(() => {
+      setNodes(nds => nds.map(n => n.id === loadingId ? { ...n, data: { label: 'Preparing discussion space...' } } : n));
+    }, 2000);
 
     setTimeout(() => {
       setNodes((nds) => {
         const filtered = nds.filter(n => n.id !== loadingId);
-        // We need the briefState here. Since we can't reliably read it without dependencies, 
-        // we'll extract it from the BriefNode or use the state.
         
-        // Let's get outcome data
-        const currentBrief = briefState;
+        const currentBrief = briefRef.current;
         const outcome = getOutcome(currentBrief, scenarioId, methodId);
         
-        const outcomeNode = {
-          id: `outcome-${methodId}`,
-          type: 'outcome',
-          position: { x: 1350, y: yPos - 100 },
+        const summaryNode = {
+          id: `summary-${methodId}`,
+          type: 'summary',
+          position: { x: 1400, y: yPos - 120 },
+          data: { outcome }
+        };
+
+        const discussionNode = {
+          id: `discussion-${methodId}`,
+          type: 'discussion',
+          position: { x: 1850, y: yPos - 120 },
           data: { 
             outcome,
             brief: currentBrief,
@@ -223,24 +252,32 @@ export default function App() {
           }
         };
 
-        return [...filtered, outcomeNode];
+        return [...filtered, summaryNode, discussionNode];
       });
 
       setEdges((eds) => {
         const filtered = eds.filter(e => e.id !== 'e-method-loading');
-        const edge = {
-          id: `e-method-${methodId}-outcome`,
+        const edge1 = {
+          id: `e-method-${methodId}-summary`,
           source: `method-${methodId}`,
-          target: `outcome-${methodId}`,
+          target: `summary-${methodId}`,
+          ...defaultEdgeOptions,
+          style: { stroke: '#6366f1', strokeWidth: 3 },
+          animated: false
+        };
+        const edge2 = {
+          id: `e-summary-${methodId}-discussion`,
+          source: `summary-${methodId}`,
+          target: `discussion-${methodId}`,
           ...defaultEdgeOptions,
           style: { stroke: '#3b82f6', strokeWidth: 3 },
           animated: false
         };
-        return [...filtered, edge];
+        return [...filtered, edge1, edge2];
       });
-    }, 1500);
+    }, 3000);
 
-  }, [briefState]);
+  }, []);
 
   const handleReset = useCallback(() => {
     setBriefState(null);
@@ -267,7 +304,7 @@ export default function App() {
         className="bg-slate-50"
       >
         <Background color="#cbd5e1" gap={20} size={2} />
-        <Controls className="bg-white shadow-md border border-slate-200 rounded-lg" />
+        <Controls className="bg-white shadow-md border border-slate-200 rounded-lg mb-16" />
         <MiniMap 
           nodeColor={(n) => {
             if (n.type === 'brief') return '#6366f1';
@@ -277,9 +314,19 @@ export default function App() {
             return '#cbd5e1';
           }}
           maskColor="rgba(248, 250, 252, 0.7)"
-          className="border-2 border-slate-200 rounded-lg shadow-md bg-white"
+          className="border-2 border-slate-200 rounded-lg shadow-md bg-white mb-16"
         />
       </ReactFlow>
+
+      {/* Persistent Bottom Bar */}
+      {briefState && briefState.prompt && (
+        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 flex flex-col items-center justify-center z-10 transition-all duration-500 transform translate-y-0">
+          <div className="max-w-4xl w-full text-center">
+            <span className="text-xs font-mono font-bold text-indigo-500 uppercase tracking-widest block mb-1">Your Input</span>
+            <p className="text-sm font-sans text-slate-700 italic m-0">"{briefState.prompt}"</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

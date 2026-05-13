@@ -19,18 +19,23 @@ export default function ScenarioNode({ data, selected }) {
         className="w-3 h-3 bg-gray-400 border-2 border-white"
       />
       
-      <div className={`px-4 py-3 border-b flex justify-between items-center
+      <div className={`px-4 py-3 border-b
         ${selected ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100'}
       `}>
-        <span className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">
-          Scenario
-        </span>
-        {selected && (
-          <span className="flex h-3 w-3 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+        <div className="flex justify-between items-start mb-2">
+          <span className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">
+            Scenario
           </span>
-        )}
+          {selected && (
+            <span className="flex h-3 w-3 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+            </span>
+          )}
+        </div>
+        <div className="inline-block bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 uppercase tracking-wide">
+          {data.scenario.contextLabel || 'Problem Context'}
+        </div>
       </div>
 
       <div className="p-4 flex flex-col gap-2">

@@ -10,10 +10,10 @@ export default function OutcomeNode({ data }) {
   const summaryText = `DESIGN REFLECTION SUMMARY
 -------------------------
 PHASE: ${data.brief.phase}
-CONTEXT: ${data.brief.context}
-USER: ${data.brief.userType}
-LOCATION: ${data.brief.location}
-TIME: ${data.brief.time}
+CHOSEN CONTEXT: ${outcome.contextLabel}
+
+ORIGINAL INPUT:
+"${outcome.originalInput}"
 
 SELECTED SCENARIO:
 ${outcome.scenarioTitle}
